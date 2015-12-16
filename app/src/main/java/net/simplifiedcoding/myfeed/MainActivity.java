@@ -1,5 +1,6 @@
 package net.simplifiedcoding.myfeed;
 
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,7 +24,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements RecyclerView.OnScrollChangeListener {
+public class MainActivity extends AppCompatActivity{
 
     //Creating a List of superheroes
     private List<SuperHero> listSuperHeroes;
@@ -57,14 +58,40 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
         //Calling method to get data to fetch data
         getData();
 
-        //Adding an scroll change listener to recyclerview
-        recyclerView.setOnScrollChangeListener(this);
+//        //Adding an scroll change listener to recyclerview
+//        recyclerView.setOnScrollChangeListener(this);
 
         //initializing our adapter
         adapter = new CardAdapter(listSuperHeroes, this);
 
         //Adding adapter to recyclerview
         recyclerView.setAdapter(adapter);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                        //IfScrolled at last then
+                    if (isLastItemDisplaying(recyclerView)) {
+                        //Calling the method getdata again
+                        getData();
+                    }
+                }
+            });
+        } else {
+            recyclerView.setOnScrollChangeListener( new RecyclerView.OnScrollChangeListener() {
+                @Override
+                public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                        //IfScrolled at last then
+                    if (isLastItemDisplaying(recyclerView)) {
+                        //Calling the method getdata again
+                        getData();
+                    }
+                }
+            });
+        }
+
     }
 
     //Request to get json from server we are passing an integer here
@@ -135,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
         adapter.notifyDataSetChanged();
     }
 
-    //This method would check that the recyclerview scroll has reached the bottom or not
+    //This method would check that the recyclerView scroll has reached the bottom or not
     private boolean isLastItemDisplaying(RecyclerView recyclerView) {
         if (recyclerView.getAdapter().getItemCount() != 0) {
             int lastVisibleItemPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
@@ -145,13 +172,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
         return false;
     }
 
-    //Overriden method to detect scrolling
-    @Override
-    public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        //Ifscrolled at last then
-        if (isLastItemDisplaying(recyclerView)) {
-            //Calling the method getdata again
-            getData();
-        }
-    }
+    //Overridden method to detect scrolling
+//    @Override
+//    public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+//        //IfScrolled at last then
+//        if (isLastItemDisplaying(recyclerView)) {
+//            //Calling the method getData again
+//            getData();
+//        }
+//    }
 }
